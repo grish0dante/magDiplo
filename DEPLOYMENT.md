@@ -164,16 +164,4 @@ kubectl -n marching-cubes exec deployment/redis -- redis-cli LLEN bull:marching-
 
 Параметри KEDA: `minReplicaCount=1`, `maxReplicaCount=8`, `listLength=20`, `pollingInterval=5`, `cooldownPeriod=120`. **Не застосовуйте** `worker-hpa.yaml` разом із `worker-scaledobject.yaml` — дві системи масштабування конфліктуватимуть.
 
-## 7. Тести
 
-```powershell
-npm install
-node --test .\tests\chunks.test.js
-```
-
-## 8. Безпека та дані
-
-- Не комітьте `.env`, JWT-токени, бази даних та секрети.
-- `AUTH_SECRET` і `WORKER_SECRET` мають бути різними.
-- Для production використовуйте HTTPS, registry, окремі конфігурації, стійкі сховища та production-збірку Frontend. Наявний Vite dev server — для локальної демонстрації.
-- Не видаляйте `namespace marching-cubes` і PVC без резервної копії MongoDB.
