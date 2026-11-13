@@ -1,0 +1,26 @@
+# KEDA watches the BullMQ waiting list. Only waiting jobs are counted.
+# BullMQ default key: bull:<queue-name>:wait, queue name = marching-cubes.
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: marching-worker-autoscaler
+  namespace: marching-cubes
+spec:
+  scaleTargetRef:
+    name: marching-workers
+  pollingInterval: 5
+  cooldownPeriod: 120
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 120
+  triggers:
+    - type: redis
+      metadata:
+        address: redis.marching-cubes.svc.cluster.local:6379
+        listName: bull:marching-cubes:wait
+        listLength: "20"
+        activationListLength: "1"

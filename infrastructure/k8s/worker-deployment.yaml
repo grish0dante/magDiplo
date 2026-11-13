@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marching-workers
+  namespace: marching-cubes
+  labels: {app: marching-worker}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: marching-worker}
+  template:
+    metadata:
+      labels: {app: marching-worker}
+    spec:
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: worker
+          image: marching-cubes-worker:local
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: REDIS_HOST
+              value: redis
+            - name: BACKEND_URL
+              value: http://backend-service:3000
+            - name: WORKER_SECRET
+              valueFrom:
+                secretKeyRef: {name: marching-secrets, key: WORKER_SECRET}
+            - name: NODE_OPTIONS
+              value: --max-old-space-size=1536
+          resources:
+            requests: {cpu: "250m", memory: "384Mi"}
+            limits: {cpu: "1500m", memory: "2Gi"}

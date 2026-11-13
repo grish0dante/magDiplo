@@ -1,0 +1,70 @@
+version: '3.9'
+
+services:
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL= 
+      - VITE_BACKEND_TARGET=http://backend:3000
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./backend:/app
+      - ./shared:/shared
+      - /app/node_modules
+    environment:
+      - PORT=3000
+      - AUTH_SECRET=${AUTH_SECRET:?Set AUTH_SECRET in .env (32+ random characters)}
+      - WORKER_SECRET=${WORKER_SECRET:?Set WORKER_SECRET in .env}
+      - CORS_ORIGIN=http://localhost:5173
+      - MONGO_URI=mongodb://mongo:27017/marching
+      - REDIS_HOST=redis
+    depends_on:
+      - mongo
+      - redis
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./worker/Dockerfile
+
+    volumes:
+      - ./worker:/worker
+      - ./shared:/shared
+      - /worker/node_modules
+
+    environment:
+      - REDIS_HOST=redis
+      - BACKEND_URL=http://backend:3000
+      - WORKER_SECRET=${WORKER_SECRET:?Set WORKER_SECRET in .env}
+      - NODE_OPTIONS=--max-old-space-size=2048
+      
+
+    depends_on:
+      - backend
+      - redis
+
+  mongo:
+    image: mongo:7
+    restart: always
+
+
+  redis:
+    image: redis:7
+    restart: always
+

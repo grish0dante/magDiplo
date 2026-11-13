@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: backend, namespace: marching-cubes}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: backend}}
+  template:
+    metadata: {labels: {app: backend}}
+    spec:
+      containers:
+        - name: backend
+          image: marching-cubes-backend:local
+          command: ["node", "server.js"]
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 3000}]
+          env:
+            - {name: PORT, value: "3000"}
+            - {name: REDIS_HOST, value: redis}
+            - {name: MONGO_URI, value: "mongodb://mongo:27017/marching"}
+            - {name: CORS_ORIGIN, value: "http://localhost:5173"}
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef: {name: marching-secrets, key: AUTH_SECRET}
+            - name: WORKER_SECRET
+              valueFrom:
+                secretKeyRef: {name: marching-secrets, key: WORKER_SECRET}
+          resources:
+            requests: {cpu: "100m", memory: "256Mi"}
+            limits: {memory: "1Gi"}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: backend-service, namespace: marching-cubes}
+spec:
+  selector: {app: backend}
+  ports: [{port: 3000, targetPort: 3000}]

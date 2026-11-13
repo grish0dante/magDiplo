@@ -1,0 +1,11 @@
+node_modules
+.env
+coverage
+build
+dist
+.vscode
+.DS_Store
+*.log
+backend/data/
+backend/data/chunks/*
+!backend/data/chunks/.gitkeep

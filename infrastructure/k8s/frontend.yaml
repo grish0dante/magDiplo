@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: frontend, namespace: marching-cubes}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: frontend}}
+  template:
+    metadata: {labels: {app: frontend}}
+    spec:
+      containers:
+        - name: frontend
+          image: marching-cubes-frontend:local
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 5173}]
+          env:
+            - {name: VITE_API_URL, value: ""}
+            - {name: VITE_BACKEND_TARGET, value: "http://backend-service:3000"}
+          resources:
+            requests: {cpu: "100m", memory: "256Mi"}
+            limits: {memory: "2Gi"}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: frontend-service, namespace: marching-cubes}
+spec:
+  selector: {app: frontend}
+  ports: [{port: 5173, targetPort: 5173}]
