@@ -1,7 +1,5 @@
 # 🚀 Запуск та розгортання
 
-[← Головний README](../README.md)
-
 > Команди призначені для **Windows PowerShell**. Запускайте їх із кореня `mc-social`, де розташовані `docker-compose.yml` та `START_K8S.ps1`.
 
 ## 1. Вимоги
